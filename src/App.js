@@ -134,8 +134,10 @@ const App = () => {
     let WHours = TotalH - BreakH;
     let WMinutes = TotalM - BreakM;
     let WSeconds = TotalS - BreakS;
-
-    if (WSeconds < 0) {
+    console.log(WHours, WMinutes, WSeconds);
+    if (WHours === 0 || WMinutes === 0 || WSeconds === 0) {
+      return 0;
+    } else if (WSeconds < 0) {
       if (WMinutes - 1 < 0) {
         return WHours - 1 + ":" + (WMinutes - 1 + 60) + ":" + (WSeconds + 60);
       }
