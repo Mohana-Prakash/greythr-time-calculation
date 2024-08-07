@@ -8,13 +8,17 @@ const App = () => {
   const [breakHours, setbreakHours] = React.useState("0");
 
   const timeStampHandler = (text) => {
+    onChangeText(text.target.value);
+  };
+
+  const calculateHandler = () => {
     let today = new Date();
 
     let date_check =
-      text.target.value.match(/(\d{1,2}\s[A-Za-z]+\s\d{4})/)[0] ==
+      text.match(/(\d{1,2}\s[A-Za-z]+\s\d{4})/)[0] ==
       moment(today).format("DD MMM YYYY");
-    let myArray = text.target.value.match(/\b\d{1,2}:\d{2}:\d{2}\b/g) || [];
-    onChangeText(text.target.value);
+    let myArray = text.match(/\b\d{1,2}:\d{2}:\d{2}\b/g) || [];
+
     let d = new Date(); // for now
     d.getHours(); // => 9
     d.getMinutes(); // =>  30
@@ -157,15 +161,27 @@ const App = () => {
         value={text}
         placeholder="Enter Your Swipe Time Here"
       />
-      <p>
-        Your Total Hours : <span>{totalHours}</span>
-      </p>
-      <p>
-        Your Working Hours : <span>{Present_cal(totalHours, breakHours)}</span>
-      </p>
-      <p>
-        Your Break Hours : <span>{breakHours}</span>
-      </p>
+      <button onClick={calculateHandler}>Calculate</button>
+      <div className="box_div">
+        <div className="box">
+          <p>Your Total Hours :</p>
+          <p>
+            <span>{totalHours}</span>
+          </p>
+        </div>
+        <div className="box">
+          <p>Your Working Hours : </p>{" "}
+          <p>
+            <span>{Present_cal(totalHours, breakHours)}</span>
+          </p>
+        </div>
+        <div className="box">
+          <p>Your Break Hours :</p>
+          <p>
+            <span>{breakHours}</span>
+          </p>
+        </div>
+      </div>
     </div>
   );
 };

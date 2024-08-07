@@ -23,7 +23,7 @@ body {
 
 .time_stamp_input {
   padding: 10px;
-  width: 100%;
+  width: 97%;
   height: 50vh;
   border-radius: 10px;
   border: solid 2px rgb(127, 206, 209);
@@ -31,10 +31,33 @@ body {
 p {
   font-size: 16px;
   font-weight: 600;
+  text-align: center;
 }
 span {
-  font-size: 20px;
+  font-size: 26px;
   color: red;
   font-weight: 700;
   font-family: "Roboto Mono", monospace;
+}
+button {
+  padding: 8px 10px;
+  outline: none;
+  font-size: 20px;
+  border-radius: 5px;
+  border: solid 1px lightgray;
+  background-color: grey;
+  color: white;
+  cursor: pointer;
+}
+.box_div {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 1rem;
+}
+.box {
+  background-color: rgb(127, 206, 209);
+  padding: 1rem 0;
+  width: 30%;
+  border-radius: 10px;
 }
