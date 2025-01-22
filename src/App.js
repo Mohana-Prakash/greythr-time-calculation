@@ -3,165 +3,127 @@ import moment from "moment";
 import "./App.css";
 
 const App = () => {
-  const [text, onChangeText] = React.useState("");
+  const [text, setText] = React.useState("");
   const [totalHours, setTotalHours] = React.useState("0");
-  const [breakHours, setbreakHours] = React.useState("0");
+  const [breakHours, setBreakHours] = React.useState("0");
 
-  const timeStampHandler = (text) => {
-    onChangeText(text.target.value);
+  const handleTextChange = (event) => {
+    setText(event.target.value);
   };
 
-  const calculateHandler = () => {
-    let today = new Date();
+  const calculateTimeDifference = (time1, time2) => {
+    const date1 = new Date(`1970-01-01T${time1}Z`);
+    const date2 = new Date(`1970-01-01T${time2}Z`);
 
-    let date_check =
-      text.match(/(\d{1,2}\s[A-Za-z]+\s\d{4})/)[0] ===
-      moment(today).format("DD MMM YYYY");
-    let myArray = text.match(/\b\d{1,2}:\d{2}:\d{2}\b/g) || [];
+    const diffInMs = date2 - date1;
+    const hours = Math.floor(diffInMs / (1000 * 60 * 60));
+    const minutes = Math.floor((diffInMs % (1000 * 60 * 60)) / (1000 * 60));
+    const seconds = Math.floor((diffInMs % (1000 * 60)) / 1000);
 
-    let d = new Date(); // for now
-    d.getHours(); // => 9
-    d.getMinutes(); // =>  30
-    d.getSeconds(); // => 51
-    // alert(d.getHours() + ':' + d.getMinutes() + ':' + d.getSeconds());
-    let startH = Object.values(myArray)[0].split(":")[0];
-    let startM = Object.values(myArray)[0].split(":")[1];
-    let startS = Object.values(myArray)[0].split(":")[2];
-    let EndH =
-      Object.values(myArray).length <= 1 || date_check
-        ? d.getHours()
-        : Object.values(myArray).pop().split(":")[0];
-    let EndM =
-      Object.values(myArray).length <= 1 || date_check
-        ? d.getMinutes()
-        : Object.values(myArray).pop().split(":")[1];
-    let EndS =
-      Object.values(myArray).length <= 1 || date_check
-        ? d.getSeconds()
-        : Object.values(myArray).pop().split(":")[2];
-    let Hours = EndH - startH;
-    let Minutes = EndM - startM;
-    let Seconds = EndS - startS;
+    return {
+      hours,
+      minutes,
+      seconds,
+      formatted: `${hours}:${minutes}:${seconds}`,
+    };
+  };
 
-    time_Calculation(Hours, Minutes, Seconds);
+  const handleCalculate = () => {
+    const today = moment().format("DD MMM YYYY");
+    const currentDate = new Date();
+    const matches = text.match(/\b\d{1,2}:\d{2}:\d{2}\b/g) || [];
+    const isToday = text.includes(today);
 
-    function getTimeDifference(time1, time2) {
-      // Convert time strings to Date objects
-      const date1 = new Date("1970-01-01T" + time1 + "Z");
-      const date2 = new Date("1970-01-01T" + time2 + "Z");
+    const startTime = matches[0];
+    const endTime =
+      matches.length > 1 && !isToday
+        ? matches[matches.length - 1]
+        : `${currentDate.getHours()}:${currentDate.getMinutes()}:${currentDate.getSeconds()}`;
 
-      // Calculate the difference in milliseconds
-      const timeDiff = date2 - date1;
-      const hours = Math.floor(timeDiff / (1000 * 60 * 60));
-      const minutes = Math.floor((timeDiff % (1000 * 60 * 60)) / (1000 * 60));
-      const seconds = Math.floor((timeDiff % (1000 * 60)) / 1000);
-
-      // Format the time as "hours:minutes:seconds"
-      const formattedTime = `${hours}:${minutes}:${seconds}`;
-
-      return {
-        hours: hours,
-        minutes: minutes,
-        seconds: seconds,
-        formattedTime: formattedTime,
-      };
+    if (startTime) {
+      const { hours, minutes, seconds } = calculateTimeDifference(
+        startTime,
+        endTime
+      );
+      updateTotalHours(hours, minutes, seconds);
     }
 
-    const times = Object.values(myArray);
+    calculateBreakTime(matches);
+  };
 
-    let totalHours = 0;
-    let totalMinutes = 0;
-    let totalSeconds = 0;
+  const updateTotalHours = (hours, minutes, seconds) => {
+    if (seconds < 0) {
+      seconds += 60;
+      minutes -= 1;
+    }
+    if (minutes < 0) {
+      minutes += 60;
+      hours -= 1;
+    }
+    setTotalHours(`${hours}:${minutes}:${seconds}`);
+  };
 
-    const timings = [];
+  const calculateBreakTime = (timestamps) => {
+    let totalBreakTime = { hours: 0, minutes: 0, seconds: 0 };
 
-    for (let i = 1; i < times.length - 1; i = i + 2) {
-      const time1 = times[i];
-      const time2 = times[i + 1];
-      const difference = getTimeDifference(time1, time2);
-
-      // Accumulate the total values
-      totalHours += difference.hours;
-      totalMinutes += difference.minutes;
-      totalSeconds += difference.seconds;
-
-      // Push the formatted time string to the 'timings' array
-      timings.push(difference.formattedTime);
+    for (let i = 1; i < timestamps.length - 1; i += 2) {
+      const { hours, minutes, seconds } = calculateTimeDifference(
+        timestamps[i],
+        timestamps[i + 1]
+      );
+      totalBreakTime.hours += hours;
+      totalBreakTime.minutes += minutes;
+      totalBreakTime.seconds += seconds;
     }
 
-    // Convert excess minutes and seconds
-    totalMinutes += Math.floor(totalSeconds / 60);
-    totalSeconds %= 60;
-    totalHours += Math.floor(totalMinutes / 60);
-    totalMinutes %= 60;
+    totalBreakTime.minutes += Math.floor(totalBreakTime.seconds / 60);
+    totalBreakTime.seconds %= 60;
+    totalBreakTime.hours += Math.floor(totalBreakTime.minutes / 60);
+    totalBreakTime.minutes %= 60;
 
-    console.log(
-      "Total Time Difference (Sum of Timings):",
-      totalHours +
-        " hours, " +
-        totalMinutes +
-        " minutes, " +
-        totalSeconds +
-        " seconds"
+    setBreakHours(
+      `${totalBreakTime.hours}:${totalBreakTime.minutes}:${totalBreakTime.seconds}`
     );
-    console.log("Array of timings:", timings);
-    setbreakHours(totalHours + ":" + totalMinutes + ":" + totalSeconds);
   };
 
-  const time_Calculation = (Hours, Minutes, Seconds) => {
-    if (Seconds < 0) {
-      // alert(Hours + ':' + (Minutes - 1) + ':' + (Seconds + 60));
-      setTotalHours(Hours + ":" + (Minutes - 1) + ":" + (Seconds + 60));
-      if (Minutes - 1 < 0) {
-        // alert(Hours - 1 + ':' + (Minutes - 1 + 60) + ':' + (Seconds + 60));
-        setTotalHours(
-          Hours - 1 + ":" + (Minutes - 1 + 60) + ":" + (Seconds + 60)
-        );
-      }
-    } else if (Minutes < 0) {
-      // alert('checking' + (Hours - 1) + ':' + (Minutes + 60) + ':' + Seconds);
-      setTotalHours(Hours - 1 + ":" + (Minutes + 60) + ":" + Seconds);
-    } else {
-      // alert(Hours + ':' + Minutes + ':' + Seconds);
-      setTotalHours(Hours + ":" + Minutes + ":" + Seconds);
+  const calculateWorkingHours = () => {
+    if (
+      !totalHours ||
+      !breakHours ||
+      totalHours === "0" ||
+      breakHours === "0"
+    ) {
+      return "0:0:0";
     }
-  };
-  const Present_cal = (totalHours, breakHours) => {
-    let TotalH = totalHours.split(":")[0];
-    let TotalM = totalHours.split(":")[1];
-    let TotalS = totalHours.split(":")[2];
 
-    let BreakH = breakHours.split(":")[0];
-    let BreakM = breakHours.split(":")[1];
-    let BreakS = breakHours.split(":")[2];
+    const [totalH, totalM, totalS] = totalHours.split(":").map(Number);
+    const [breakH, breakM, breakS] = breakHours.split(":").map(Number);
 
-    let WHours = TotalH - BreakH;
-    let WMinutes = TotalM - BreakM;
-    let WSeconds = TotalS - BreakS;
-    console.log(WHours, WMinutes, WSeconds);
-    if (WHours === 0 || WMinutes === 0 || WSeconds === 0) {
-      return 0;
-    } else if (WSeconds < 0) {
-      if (WMinutes - 1 < 0) {
-        return WHours - 1 + ":" + (WMinutes - 1 + 60) + ":" + (WSeconds + 60);
-      }
-      return WHours + ":" + (WMinutes - 1) + ":" + (WSeconds + 60);
-    } else if (WMinutes < 0) {
-      return WHours - 1 + ":" + (WMinutes + 60) + ":" + WSeconds;
-    } else {
-      return WHours + ":" + WMinutes + ":" + WSeconds;
+    let workingHours = totalH - breakH;
+    let workingMinutes = totalM - breakM;
+    let workingSeconds = totalS - breakS;
+
+    if (workingSeconds < 0) {
+      workingSeconds += 60;
+      workingMinutes -= 1;
     }
+    if (workingMinutes < 0) {
+      workingMinutes += 60;
+      workingHours -= 1;
+    }
+
+    return `${workingHours}:${workingMinutes}:${workingSeconds}`;
   };
 
   return (
     <div style={{ width: "80%", margin: "3rem auto" }}>
       <textarea
         className="time_stamp_input"
-        onChange={timeStampHandler}
+        onChange={handleTextChange}
         value={text}
         placeholder="Enter Your Swipe Time Here"
       />
-      <button onClick={calculateHandler}>Calculate</button>
+      <button onClick={handleCalculate}>Calculate</button>
       <div className="box_div">
         <div className="box">
           <p>Your Total Hours :</p>
@@ -170,9 +132,9 @@ const App = () => {
           </p>
         </div>
         <div className="box">
-          <p>Your Working Hours : </p>{" "}
+          <p>Your Working Hours :</p>
           <p>
-            <span>{Present_cal(totalHours, breakHours)}</span>
+            <span>{calculateWorkingHours()}</span>
           </p>
         </div>
         <div className="box">
