@@ -116,14 +116,15 @@ const App = () => {
   };
 
   return (
-    <div style={{ width: "80%", margin: "3rem auto" }}>
-      <textarea
-        className="time_stamp_input"
-        onChange={handleTextChange}
-        value={text}
-        placeholder="Enter Your Swipe Time Here"
-      />
-      <button onClick={handleCalculate}>Calculate</button>
+    <div className="parent_div">
+      <div style={{ width: "70%" }}>
+        <textarea
+          onChange={handleTextChange}
+          value={text}
+          placeholder="Enter Your Swipe Time Here"
+        />
+        <button onClick={handleCalculate}>Calculate</button>
+      </div>
       <div className="box_div">
         <div className="box">
           <p>Your Total Hours :</p>
