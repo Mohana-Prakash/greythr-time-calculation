@@ -15,7 +15,7 @@ const App = () => {
     let today = new Date();
 
     let date_check =
-      text.match(/(\d{1,2}\s[A-Za-z]+\s\d{4})/)[0] ==
+      text.match(/(\d{1,2}\s[A-Za-z]+\s\d{4})/)[0] ===
       moment(today).format("DD MMM YYYY");
     let myArray = text.match(/\b\d{1,2}:\d{2}:\d{2}\b/g) || [];
 
@@ -28,15 +28,15 @@ const App = () => {
     let startM = Object.values(myArray)[0].split(":")[1];
     let startS = Object.values(myArray)[0].split(":")[2];
     let EndH =
-      Object.values(myArray).length <= 1 || date_check == true
+      Object.values(myArray).length <= 1 || date_check
         ? d.getHours()
         : Object.values(myArray).pop().split(":")[0];
     let EndM =
-      Object.values(myArray).length <= 1 || date_check == true
+      Object.values(myArray).length <= 1 || date_check
         ? d.getMinutes()
         : Object.values(myArray).pop().split(":")[1];
     let EndS =
-      Object.values(myArray).length <= 1 || date_check == true
+      Object.values(myArray).length <= 1 || date_check
         ? d.getSeconds()
         : Object.values(myArray).pop().split(":")[2];
     let Hours = EndH - startH;
